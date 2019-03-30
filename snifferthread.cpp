@@ -22,6 +22,7 @@ SnifferThread::SnifferThread(char* dev, QStandardItemModel *pkt_model, QStatusBa
     bgs.insert("HTTP", QColor(228, 255, 199));
     bgs.insert("Unknown", QColor(255, 255, 255));
     bgs.insert("DNS", QColor(218, 238, 255));
+    bgs.insert("HTTP", QColor(228, 255, 199));
 
 //    fgs.insert("ICMP", QColor(72, 102, 63));
 }
@@ -141,6 +142,7 @@ void SnifferThread::stop()
 
 void SnifferThread::fill(int idx, int len, QTreeWidget *infoTreeWidget, QPlainTextEdit *rawTextEdit)
 {
+    // TODO maybe memory leak here
     infoTreeWidget->clear();
     rawTextEdit->clear();
 

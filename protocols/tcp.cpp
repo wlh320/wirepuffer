@@ -60,4 +60,8 @@ void parse_tcp(packet *pkt, packet_info *pkt_info)
     // next layer
     // TODO
     curr += hdr_len;
+    if (src_port == 80 || dst_port == 80) {
+        pkt_info->protocol = "HTTP";
+        pkt_info->info = "Not Implemented";
+    }
 }

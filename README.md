@@ -10,7 +10,7 @@ Keep updating and prepared for clean slate code refactoring anytime...
 ## Features
 
 - packet capture, filtering and parsing.
-- can parse common protocols: `Ethernet, ARP, IP, IPv6, TCP, UDP, ICMP, ICMPv6`. Not all type of messages for a specific protocol are supported now.
+- can parse common protocols: `Ethernet, ARP, IP, IPv6, TCP, UDP, ICMP, ICMPv6, DNS`. Not all type of messages for a specific protocol are supported now.
 - provide a typical GUI
 
 
