@@ -41,7 +41,8 @@ SOURCES += \
     protocols/udp.cpp \
     protocols/tcp.cpp \
     protocols/icmpv4.cpp \
-    protocols/icmpv6.cpp
+    protocols/icmpv6.cpp \
+    protocols/dns.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -56,7 +57,8 @@ HEADERS += \
     protocols/arp.h \
     devdialog.h \
     protocols/shared.h \
-    protocols/icmp.h
+    protocols/icmp.h \
+    protocols/dns.h
 
 FORMS += \
         mainwindow.ui \

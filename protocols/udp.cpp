@@ -1,5 +1,7 @@
 #include "shared.h"
 #include "udp.h"
+
+#include "dns.h"
 #include <arpa/inet.h>
 
 void parse_udp(packet *pkt, packet_info *pkt_info)
@@ -26,7 +28,10 @@ void parse_udp(packet *pkt, packet_info *pkt_info)
     tree->addChild(ITEM(tmp));
 
     pkt->len -= hdr->len;
-    // next level
+    // next layer
     // TODO
-    curr += sizeof(udp_header);
+    if (src_port == DNS_PORT || dst_port == DNS_PORT) {
+        pkt->dns_hdr = reinterpret_cast<dns_header*>(curr + sizeof (udp_header));
+        pkt_info->protocol = "DNS";
+    }
 }

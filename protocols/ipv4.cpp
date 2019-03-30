@@ -6,8 +6,6 @@
 void parse_ipv4(packet *pkt, packet_info *pkt_info, bool is_full)
 {
     ipv4_header *hdr = pkt->ipv4_hdr;
-    uint8_t *curr = reinterpret_cast<uint8_t*>(hdr);
-
     char src_ip[INET_ADDRSTRLEN];
     char dst_ip[INET_ADDRSTRLEN];
     // src ip
@@ -16,22 +14,24 @@ void parse_ipv4(packet *pkt, packet_info *pkt_info, bool is_full)
     // dst ip
     inet_ntop(AF_INET, &hdr->dst_ip, dst_ip, INET_ADDRSTRLEN);
     pkt_info->dst_addr = dst_ip;
+
+    uint8_t *curr = reinterpret_cast<uint8_t*>(hdr) + sizeof (ipv4_header);
     // protocol
     switch (hdr->protocol) {
     case IPPROTO_TCP:
-        pkt->tcp_hdr = reinterpret_cast<tcp_header *>(curr + sizeof(ipv4_header));
+        pkt->tcp_hdr = reinterpret_cast<tcp_header *>(curr);
         pkt_info->protocol = "TCP";
         break;
     case IPPROTO_UDP:
-        pkt->udp_hdr = reinterpret_cast<udp_header *>(curr + sizeof(ipv4_header));
+        pkt->udp_hdr = reinterpret_cast<udp_header *>(curr);
         pkt_info->protocol = "UDP";
         break;
     case IPPROTO_ICMP:
-        pkt->icmpv4_hdr = reinterpret_cast<icmpv4_header *>(curr + sizeof(ipv4_header));
+        pkt->icmpv4_hdr = reinterpret_cast<icmpv4_header *>(curr);
         pkt_info->protocol = "ICMP";
         break;
     case IPPROTO_ICMPV6:
-        pkt->icmpv6_hdr = reinterpret_cast<icmpv6_header *>(curr + sizeof(ipv4_header));
+        pkt->icmpv6_hdr = reinterpret_cast<icmpv6_header *>(curr);
         pkt_info->protocol = "ICMPv6";
         break;
     }
@@ -53,5 +53,5 @@ void parse_ipv4(packet *pkt, packet_info *pkt_info, bool is_full)
         tree->addChild(ITEM(QString("Destination -- %1").arg(dst_ip)));
         tree->addChild(ITEM(QString("Protocol ----- %1 (%2)").arg(pkt_info->protocol).arg(hdr->protocol)));
     }
-    pkt->len -= sizeof(ipv4_header);
+    pkt->len -= (curr - reinterpret_cast<uint8_t*>(hdr));
 }

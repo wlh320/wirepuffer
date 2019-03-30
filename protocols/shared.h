@@ -1,5 +1,5 @@
-#ifndef TAGS_H
-#define TAGS_H
+#ifndef SHARED_H
+#define SHARED_H
 
 #include <QStringList>
 #include <QTreeWidgetItem>

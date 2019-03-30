@@ -1,5 +1,5 @@
-#ifndef ETHERNET_H__
-#define ETHERNET_H__
+#ifndef ETHERNET_H
+#define ETHERNET_H
 
 #include <cstdint>
 

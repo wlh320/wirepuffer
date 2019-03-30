@@ -1,5 +1,5 @@
-#ifndef IPV6_H__
-#define IPV6_H__
+#ifndef IPV6_H
+#define IPV6_H
 #include <cstdint>
 
 struct ipv6_header
@@ -15,6 +15,12 @@ struct ipv6_header
     uint8_t   hop_limit;
     uint32_t  src_ip[4];
     uint32_t  dst_ip[4];
+};
+
+struct ipv6_ext_header
+{
+    uint8_t next_header;
+    uint8_t ext_len;
 };
 
 #include "packet.h"

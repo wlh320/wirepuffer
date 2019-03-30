@@ -6,7 +6,6 @@
 void parse_ipv6(packet *pkt, packet_info *pkt_info, bool is_full)
 {
     ipv6_header *hdr = pkt->ipv6_hdr;
-    uint8_t *curr = reinterpret_cast<uint8_t*>(hdr);
     char src_ip[INET6_ADDRSTRLEN];
     char dst_ip[INET6_ADDRSTRLEN];
     // src ip
@@ -16,25 +15,33 @@ void parse_ipv6(packet *pkt, packet_info *pkt_info, bool is_full)
     inet_ntop(AF_INET6, &hdr->dst_ip, dst_ip, INET6_ADDRSTRLEN);
     pkt_info->dst_addr = dst_ip;
     // protocol
+
+    uint8_t *curr = reinterpret_cast<uint8_t*>(hdr) + sizeof (ipv6_header);
+IPV6_AGAIN: // what? I use goto statement!
+    ipv6_ext_header *ext = reinterpret_cast<ipv6_ext_header*>(curr);
     switch (hdr->next_header) {
     case IPPROTO_TCP:
-        pkt->tcp_hdr = reinterpret_cast<tcp_header *>(curr + sizeof(ipv6_header));
+        pkt->tcp_hdr = reinterpret_cast<tcp_header *>(curr);
         pkt_info->protocol = "TCP";
         break;
     case IPPROTO_UDP:
-        pkt->udp_hdr = reinterpret_cast<udp_header *>(curr + sizeof(ipv6_header));
+        pkt->udp_hdr = reinterpret_cast<udp_header *>(curr);
         pkt_info->protocol = "UDP";
         break;
     case IPPROTO_ICMP:
-        pkt->icmpv4_hdr = reinterpret_cast<icmpv4_header *>(curr + sizeof(ipv6_header));
+        pkt->icmpv4_hdr = reinterpret_cast<icmpv4_header *>(curr);
         pkt_info->protocol = "ICMP";
         break;
     case IPPROTO_ICMPV6:
-        pkt->icmpv6_hdr = reinterpret_cast<icmpv6_header *>(curr + sizeof(ipv6_header));
+        pkt->icmpv6_hdr = reinterpret_cast<icmpv6_header *>(curr);
         pkt_info->protocol = "ICMPv6";
         break;
+    case IPPROTO_IP:
+        hdr->next_header = ext->next_header; // sorry for change that
+        curr += ext->ext_len;
+        goto IPV6_AGAIN;
     default:
-        // TODO ipv6 next_header = 0
+        // TODO not implemented
         break;
     }
     if (is_full) {
@@ -47,7 +54,5 @@ void parse_ipv6(packet *pkt, packet_info *pkt_info, bool is_full)
         tree->addChild(ITEM(QString("Destination -- %1").arg(dst_ip)));
         tree->addChild(ITEM(QString("Protocol ----- %1 (%2)").arg(pkt_info->protocol).arg(hdr->next_header)));
     }
-
-    // didnt count ipv6 next_header length
-    pkt->len -= sizeof(ipv6_header);
+    pkt->len -= (curr - reinterpret_cast<uint8_t*>(hdr));
 }

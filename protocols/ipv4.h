@@ -1,5 +1,5 @@
-#ifndef IPV4_H__
-#define IPV4_H__
+#ifndef IPV4_H
+#define IPV4_H
 
 #include <cstdint>
 
@@ -22,12 +22,12 @@ struct ipv4_header
 
 
 //Macros for the ip_off field
-#define IP_RF        0x8000    // reserved fragment flag
-#define IP_DF        0x4000    // dont fragment flag
-#define IP_MF        0x2000    // more fragments flag
+//#define IP_RF        0x8000    // reserved fragment flag
+//#define IP_DF        0x4000    // dont fragment flag
+//#define IP_MF        0x2000    // more fragments flag
 
-#define IP_OFFMASK   0x1fff    // mask for fragmenting bits
-#define IP_OFFSET(ip) ((ntohs((ip)->frag_off)) & IP_OFFMASK) // the fragment offset
+//#define IP_OFFMASK   0x1fff    // mask for fragmenting bits
+//#define IP_OFFSET(ip) ((ntohs((ip)->frag_off)) & IP_OFFMASK) // the fragment offset
 
 #include "packet.h"
 void parse_ipv4(packet *pkt, packet_info *pkt_info, bool is_full = false);

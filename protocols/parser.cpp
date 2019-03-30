@@ -14,12 +14,14 @@
 #include "udp.h"
 #include "icmp.h"
 
+#include "dns.h"
+
 
 packet_info* parse(uint len, uchar *raw, bool is_full)
 {
     packet *pkt = new packet;
     packet_info *pkt_info = new packet_info;
-    pkt->len = len;
+    pkt->len = static_cast<int>(len);
     pkt->ether_hdr = reinterpret_cast<ether_header*>(raw);
     pkt_info->detail = new QTreeWidgetItem(QStringList("Packet Info"));
     // rawhex
@@ -39,7 +41,7 @@ packet_info* parse(uint len, uchar *raw, bool is_full)
         parse_ipv6(pkt, pkt_info, is_full);
     }
 
-    // layer 4 TODO
+    // layer 4
     if (pkt->tcp_hdr != nullptr) {
         parse_tcp(pkt, pkt_info);
     } else if (pkt->udp_hdr != nullptr) {
@@ -50,8 +52,11 @@ packet_info* parse(uint len, uchar *raw, bool is_full)
         parse_icmpv6(pkt, pkt_info);
     }
 
-    // layer 5
+    // layer 5 TODO
     // Not Implemented
+    if (pkt->dns_hdr != nullptr) {
+        parse_dns(pkt, pkt_info);
+    }
 
     delete pkt;
     return pkt_info;

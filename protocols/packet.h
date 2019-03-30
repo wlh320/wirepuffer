@@ -1,17 +1,21 @@
-#ifndef __PACKET_H__
-#define __PACKET_H__
+#ifndef PACKET_H
+#define PACKET_H
 
 #include <QString>
 #include <QTreeWidgetItem>
 
 struct ether_header;
+
 struct arp_header;
 struct ipv4_header;
 struct ipv6_header;
+
 struct tcp_header;
 struct udp_header;
 struct icmpv4_header;
 struct icmpv6_header;
+
+struct dns_header;
 // readable packet info
 // parsing result
 struct packet
@@ -32,7 +36,8 @@ struct packet
     icmpv6_header *icmpv6_hdr = nullptr;
 
     // layer 5
-    uint8_t *app_payload = nullptr;
+    dns_header *dns_hdr = nullptr;
+//    uint8_t *app_payload = nullptr;
 };
 
 // readable packet info

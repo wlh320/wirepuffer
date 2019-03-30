@@ -8,7 +8,7 @@ void parse_icmpv4(packet *pkt, packet_info *pkt_info)
     uint8_t type = hdr->type;
     uint8_t code = hdr->code;
     uint16_t checksum = ntohs(hdr->checksum);
-    uint32_t body = hdr->body;
+//    uint32_t body = hdr->body;
 
     QTreeWidgetItem *tree = ITEM("Internet Control Message Protocol v4");
     QString type_str = QString("[%2](%1)").arg(type);

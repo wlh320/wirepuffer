@@ -21,6 +21,7 @@ SnifferThread::SnifferThread(char* dev, QStandardItemModel *pkt_model, QStatusBa
     bgs.insert("ICMPv6", QColor(252, 224, 255));
     bgs.insert("HTTP", QColor(228, 255, 199));
     bgs.insert("Unknown", QColor(255, 255, 255));
+    bgs.insert("DNS", QColor(218, 238, 255));
 
 //    fgs.insert("ICMP", QColor(72, 102, 63));
 }
