@@ -1,8 +1,14 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
+#include "chartwindow.h"
+
 #include <QInputDialog>
+#include <QMessageBox>
 #include <QLineEdit>
+#include <QDebug>
+#include <QHash>
+
 
 MainWindow::MainWindow(QWidget *parent, QString dev) :
     QMainWindow(parent),
@@ -118,5 +124,17 @@ void MainWindow::on_actionactionSetFilter_triggered()
             sniff_thread->set_filter(text);
             ui->statusBar->showMessage("Set filter to '"  + text + "'");
         }
+    }
+}
+
+void MainWindow::on_actionactionStatistic_triggered()
+{
+
+    if (pkt_model->rowCount() > 0) {
+        QHash<QString, int> stat = sniff_thread->get_dns_stat();
+        ChartWindow *w = new ChartWindow(stat, this);
+        w->show();
+    } else {
+        QMessageBox::warning(this, "No capture", "No capture data");
     }
 }

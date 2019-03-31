@@ -27,6 +27,7 @@ private:
     QHash<QString, QColor> bgs;
     QHash<QString, QColor> fgs;
     QList<QStandardItem *> handle_packet(pcap_pkthdr *header, const uchar *data);
+    QHash<QString, int> dns_stat;
 
 public:
     SnifferThread(char* dev, QStandardItemModel *pkt_model,  QStatusBar *status_bar);
@@ -38,6 +39,7 @@ public:
     void clear(); // clear current packets
     void set_filter(QString);
     QString get_filter();
+    QHash<QString, int> get_dns_stat();
 };
 
 #endif // SNIFFERTHREAD_H

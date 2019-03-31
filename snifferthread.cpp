@@ -95,6 +95,18 @@ void SnifferThread::run()
 
             pkt_model->appendRow(row);
 
+            // DNS statistics 赶时间写的狗屎代码
+            if (row.at(4)->text() == "DNS") { // stat
+                QStringList info = row.at(6)->text().split(" ");
+                if (info.at(2) == "response") {
+                    QString name = info.at(5);
+                    if (dns_stat.contains(name)){
+                        dns_stat[name]++;
+                    } else {
+                        dns_stat[name] = 0;
+                    }
+                }
+            }
         }
     }
     if (ret == PCAP_ERROR) {
@@ -180,4 +192,9 @@ void SnifferThread::set_filter(QString filter)
 QString SnifferThread::get_filter()
 {
     return this->filter;
+}
+
+QHash<QString, int> SnifferThread::get_dns_stat()
+{
+    return this->dns_stat;
 }

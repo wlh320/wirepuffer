@@ -161,12 +161,13 @@
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
-   <addaction name="separator"/>
    <addaction name="actionStart"/>
    <addaction name="actionStop"/>
    <addaction name="actionClear"/>
-   <addaction name="actionactionFitTable"/>
    <addaction name="actionactionSetFilter"/>
+   <addaction name="separator"/>
+   <addaction name="actionactionFitTable"/>
+   <addaction name="actionactionStatistic"/>
   </widget>
   <widget class="QStatusBar" name="statusBar">
    <property name="font">
@@ -242,6 +243,18 @@
    </property>
    <property name="toolTip">
     <string>Set Caputure Filter</string>
+   </property>
+  </action>
+  <action name="actionactionStatistic">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/icons/pie-chart.png</normaloff>:/icons/pie-chart.png</iconset>
+   </property>
+   <property name="text">
+    <string>actionStatistic</string>
+   </property>
+   <property name="toolTip">
+    <string>DNS domain name statistic analysis</string>
    </property>
   </action>
  </widget>

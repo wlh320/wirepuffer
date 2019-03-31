@@ -6,5 +6,6 @@
         <file>icons/clear_button.png</file>
         <file>icons/wirepuffer.png</file>
         <file>icons/filter.png</file>
+        <file>icons/pie-chart.png</file>
     </qresource>
 </RCC>

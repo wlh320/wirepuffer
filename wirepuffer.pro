@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
+QT       += core gui charts
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -42,7 +42,8 @@ SOURCES += \
     protocols/tcp.cpp \
     protocols/icmpv4.cpp \
     protocols/icmpv6.cpp \
-    protocols/dns.cpp
+    protocols/dns.cpp \
+    chartwindow.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -58,7 +59,8 @@ HEADERS += \
     devdialog.h \
     protocols/shared.h \
     protocols/icmp.h \
-    protocols/dns.h
+    protocols/dns.h \
+    chartwindow.h
 
 FORMS += \
         mainwindow.ui \

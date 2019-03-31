@@ -30,6 +30,8 @@ private slots:
 
     void on_actionactionSetFilter_triggered();
 
+    void on_actionactionStatistic_triggered();
+
 private:
     Ui::MainWindow *ui;
 
