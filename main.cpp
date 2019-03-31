@@ -13,14 +13,8 @@ int main(int argc, char *argv[])
     QApplication a(argc, argv);
     a.setWindowIcon(QIcon(":/icons/wirepuffer.png"));
 
-    DevDialog d(nullptr);
+    MainWindow w;
+    w.show();
 
-    int code = d.exec();
-    if (code == QDialog::Accepted) {
-        MainWindow w(nullptr, d.getDev());
-        w.show();
-        a.exec();
-    }
-//    return a.exec();
-    return 0;
+    return a.exec();
 }

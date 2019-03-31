@@ -1,10 +1,14 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
+#include "devdialog.h"
 #include "chartwindow.h"
+
 
 #include <QInputDialog>
 #include <QMessageBox>
+#include <QFileDialog>
+#include <QStandardPaths>
 #include <QLineEdit>
 #include <QDebug>
 #include <QHash>
@@ -42,40 +46,35 @@ MainWindow::MainWindow(QWidget *parent, QString dev) :
     ui->mainToolBar->setIconSize(QSize(24, 24));
     ui->statusBar->setStyleSheet("color: #aa0000");
     // data
-    this->dev = nullptr;
-    this->dev = new char[256];
-    strcpy(this->dev, dev.toStdString().c_str());
-    ui->statusBar->showMessage("current interface: " + QString(this->dev));
-
-//    ui->mainSplitter->setStretchFactor(0, 1);
-//    ui->mainSplitter->setStretchFactor(1, 0);
-
-    sniff_thread = nullptr;
-    sniff_thread = new SnifferThread(this->dev, pkt_model, ui->statusBar);
+    this->dev = "";
+    sniff_thread = new SnifferThread(pkt_model, ui->statusBar);
 }
 
 MainWindow::~MainWindow()
 {
-    if (this->dev) {
-        delete [] this->dev;
-    }
     delete ui;
 }
 
 void MainWindow::on_actionStart_triggered()
 {
+    // choose device
+    DevDialog d(nullptr);
 
-    if (sniff_thread == nullptr) {
-        sniff_thread = new SnifferThread(dev, pkt_model, ui->statusBar);
+    int code = d.exec();
+    if (code != QDialog::Accepted) {
+        return ;
     }
+    if (this->dev == "") {
+        QString chosen = d.getDev();
+        sniff_thread->set_dev(chosen);
+        this->dev = chosen;
+    }
+    sniff_thread->init(false, ""); // live capture
+    sniff_thread->clear();
     sniff_thread->start();
+
     ui->actionStart->setDisabled(true);
     ui->actionStop->setDisabled(false);
-    QString f = sniff_thread->get_filter();
-    if (f.length() == 0) {
-        f = "None";
-    }
-    ui->statusBar->showMessage("Capture Started. Filter: " + f);
 }
 
 void MainWindow::on_actionStop_triggered()
@@ -83,17 +82,14 @@ void MainWindow::on_actionStop_triggered()
     sniff_thread->stop();
     ui->actionStop->setDisabled(true);
     ui->actionStart->setDisabled(false);
-    QString f = sniff_thread->get_filter();
-    if (f.length() == 0) {
-        f = "None";
-    }
-    ui->statusBar->showMessage("Capture Stopped. Filter: " + f);
 }
 
 void MainWindow::on_actionClear_triggered()
 {
     if (sniff_thread != nullptr) {
         sniff_thread->clear();
+        ui->packetInfoTree->clear();
+        ui->packetRawTextEdit->clear();
     }
 }
 
@@ -129,12 +125,45 @@ void MainWindow::on_actionactionSetFilter_triggered()
 
 void MainWindow::on_actionactionStatistic_triggered()
 {
-
     if (pkt_model->rowCount() > 0) {
         QHash<QString, int> stat = sniff_thread->get_dns_stat();
         ChartWindow *w = new ChartWindow(stat, this);
         w->show();
     } else {
         QMessageBox::warning(this, "No capture", "No capture data");
+    }
+}
+
+void MainWindow::on_actionOpen_triggered()
+{
+    QString txt = QFileDialog::getOpenFileName(this, "Open File", QStandardPaths::displayName(QStandardPaths::DesktopLocation),
+    "pcap File(*.pcap);; All files(*.*)");
+    // click cancel
+    if(txt.length() == 0){
+        ui->statusBar->showMessage("No file selected.");
+        return;
+    }
+
+    char *filename = new char[txt.length()];
+    strcpy(filename, txt.toStdString().c_str());
+    sniff_thread->init(true, filename);
+    delete[] filename;
+
+    ui->actionClear->setDisabled(true);
+    sniff_thread->start();
+}
+
+void MainWindow::on_actionSave_triggered()
+{
+    QString filepath = QFileDialog::getSaveFileName(this, "Open File", QStandardPaths::displayName(QStandardPaths::DesktopLocation),
+    "pcap File(*.pcap);; All files(*.*)");
+    // click cancel
+    if(filepath.length() == 0){
+        ui->statusBar->showMessage("No file selected.");
+        return;
+    }
+
+    if (sniff_thread) {
+        sniff_thread->save(filepath);
     }
 }

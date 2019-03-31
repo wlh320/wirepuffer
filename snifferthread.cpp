@@ -5,14 +5,15 @@
 #include "protocols/packet.h"
 #include "protocols/parser.h"
 
-SnifferThread::SnifferThread(char* dev, QStandardItemModel *pkt_model, QStatusBar *status_bar)
+SnifferThread::SnifferThread(QStandardItemModel *pkt_model, QStatusBar *status_bar)
 {
     this->pkt_model = pkt_model;
     this->status_bar = status_bar;
 
-    this->dev = dev;
     this->is_stop = true;
     this->count = 0;
+
+    this->dev = new char[1024];
     // colors
     bgs.insert("ARP", QColor(250, 240, 215));
     bgs.insert("UDP", QColor(218, 238, 255));
@@ -23,39 +24,41 @@ SnifferThread::SnifferThread(char* dev, QStandardItemModel *pkt_model, QStatusBa
     bgs.insert("Unknown", QColor(255, 255, 255));
     bgs.insert("DNS", QColor(218, 238, 255));
     bgs.insert("HTTP", QColor(228, 255, 199));
-
-//    fgs.insert("ICMP", QColor(72, 102, 63));
 }
 SnifferThread::~SnifferThread()
 {
-
+    // TODO release memory allocated
+    delete this->dev;
+    pcap_close(handle);
 }
 
-void SnifferThread::run()
+void SnifferThread::init(bool is_open, QString filename)
 {
     const char *filter_exp = this->filter.toStdString().c_str();
-    pcap_t *handle;
+    bpf_program filter;
     char errbuf[PCAP_ERRBUF_SIZE];
-    pcap_pkthdr *header;
-    const u_char *data;
     bpf_u_int32 subnet_mask, ip;
-    struct bpf_program filter;
 
-    is_stop = false; // start
     // lookup device
-    if (pcap_lookupnet(dev, &ip, &subnet_mask, errbuf) == -1) {
+    if (pcap_lookupnet(this->dev, &ip, &subnet_mask, errbuf) == -1) {
         status_bar->showMessage(QString("Can't get netmask for device %1, %2").arg(QString(dev)).arg(QString(errbuf)));
         ip = 0;
         subnet_mask = 0;
     }
-    // open live
-    handle = pcap_open_live(dev, BUFSIZ, 1, 1000, errbuf);
-    if (handle == nullptr) {
-        status_bar->showMessage(QString("Couldn't open device %1, %2").arg(QString(dev)).arg(QString(errbuf)));
-        return ;
+    if (is_open) { // open file
+        handle = pcap_open_offline(filename.toStdString().c_str(), errbuf);
+        if (handle == nullptr) {
+            status_bar->showMessage(QString("Couldn't open file %1, %2").arg(QString(filename)).arg(QString(errbuf)));
+            return ;
+        }
+    } else { // open live
+        handle = pcap_open_live(dev, BUFSIZ, 1, 1000, errbuf);
+        if (handle == nullptr) {
+            status_bar->showMessage(QString("Couldn't open device %1, %2").arg(QString(dev)).arg(QString(errbuf)));
+            return ;
+        }
     }
     // set filter
-    printf("%s\n", filter_exp);
     if (pcap_compile(handle, &filter, filter_exp, 0, ip) == -1) {
         status_bar->showMessage(QString("Bad filter - %1").arg(QString(pcap_geterr(handle))));
         this->filter = "";
@@ -65,57 +68,48 @@ void SnifferThread::run()
         status_bar->showMessage(QString("Error setting filter - %1").arg(QString(pcap_geterr(handle))));
         return ;
     }
+}
+
+void SnifferThread::run()
+{
+    if (!handle) {
+        return ;
+    }
+    QString f = this->filter.length() == 0? "None" : this->filter;
+    status_bar->showMessage(QString("Capture Started. Interface: ") + QString(dev) + " Filter: " + f);
+
+    pcap_pkthdr *header;
+    const u_char *data;
+    is_stop = false; // start
     int ret = 0;
     // start capture
     while(!is_stop && (ret = pcap_next_ex(handle, &header, &data)) >= 0) {
         if (ret == 1) {
             count++;
-
-            uchar *tmp = new uchar[header->len];
-            memcpy(tmp, data, header->len);
-            pkts_raw.push_back(tmp);
-
+            cache_packet(header, data);
             QList<QStandardItem *> row;
             row = handle_packet(header, data);
-
-            // color
-            QString protocol = row.at(4)->text();
-            QColor bc = QColor(255, 255, 255);
-            if (bgs.contains(protocol)) {
-                bc = bgs.value(protocol);
-            }
-            QColor fc = QColor(0, 0, 0);
-            if (fgs.contains(protocol)) {
-                fc = fgs.value(protocol);
-            }
-            for (int i = 0; i < row.length(); ++i) {
-                row.at(i)->setData(bc, Qt::BackgroundColorRole);
-                row.at(i)->setData(fc, Qt::ForegroundRole);
-            }
-
             pkt_model->appendRow(row);
-
-            // DNS statistics 赶时间写的狗屎代码
-            if (row.at(4)->text() == "DNS") { // stat
-                QStringList info = row.at(6)->text().split(" ");
-                if (info.at(2) == "response") {
-                    QString name = info.at(5);
-                    if (dns_stat.contains(name)){
-                        dns_stat[name]++;
-                    } else {
-                        dns_stat[name] = 0;
-                    }
-                }
-            }
         }
     }
+    // stopped
+    status_bar->showMessage("Capture Stopped. Filter: " + f);
     if (ret == PCAP_ERROR) {
         status_bar->showMessage(QString("Error while capturing"));
     }
-    pcap_close(handle);
 }
 
-// handle packet
+void SnifferThread::cache_packet(pcap_pkthdr *header, const uchar *data)
+{
+    pkts_hdr.push_back(header);
+
+    uchar *tmp = new uchar[header->len];
+    memcpy(tmp, data, header->len);
+    pkts_raw.push_back(tmp);
+
+}
+
+// parse packet
 QList<QStandardItem *> SnifferThread::handle_packet(pcap_pkthdr *header, const uchar *data)
 {
 
@@ -143,6 +137,29 @@ QList<QStandardItem *> SnifferThread::handle_packet(pcap_pkthdr *header, const u
     //new QStandardItem("Info")
     row.append(new QStandardItem(pkt_info->info));
 
+
+    QString prot = pkt_info->protocol;
+    QString info = pkt_info->info;
+    // color
+    QColor bc = bgs.contains(prot)? bgs.value(prot): QColor(255, 255, 255);
+    QColor fc = fgs.contains(prot)? fgs.value(prot): QColor(0, 0, 0);
+    for (int i = 0; i < row.length(); ++i) {
+        row.at(i)->setData(bc, Qt::BackgroundColorRole);
+        row.at(i)->setData(fc, Qt::ForegroundRole);
+    }
+    // DNS statistics 赶时间写的狗屎代码
+    if (prot == "DNS") { // stat
+        // info example : Standard query 0xFFFF A g.cn
+        QStringList infos = info.split(" ");
+        if (infos.at(2) == "response") {
+            QString name = infos.at(5);
+            if (dns_stat.contains(name)){
+                dns_stat[name]++;
+            } else {
+                dns_stat[name] = 0;
+            }
+        }
+    }
     delete pkt_info; // free
     return row;
 }
@@ -184,17 +201,31 @@ void SnifferThread::clear()
     pkt_model->setHorizontalHeaderItem(6, new QStandardItem("Info"));
 }
 
+void SnifferThread::set_dev(QString devname)
+{
+    strcpy(dev, devname.toStdString().c_str());
+}
+
 void SnifferThread::set_filter(QString filter)
 {
     this->filter = filter;
 }
 
-QString SnifferThread::get_filter()
-{
-    return this->filter;
-}
-
 QHash<QString, int> SnifferThread::get_dns_stat()
 {
     return this->dns_stat;
+}
+
+void SnifferThread::save(QString filepath)
+{
+    pcap_dumper_t *dumper = nullptr;
+    dumper = pcap_dump_open(handle, filepath.toStdString().c_str());
+    if (!dumper) {
+        status_bar->showMessage("Error: " + QString(pcap_geterr(handle)));
+        return ;
+    }
+    for (int i = 0; i < pkts_hdr.count(); i++) {
+        pcap_dump(reinterpret_cast<uchar*>(dumper), pkts_hdr[i], pkts_raw[i]);
+    }
+    status_bar->showMessage("Saved to " + QString(filepath));
 }

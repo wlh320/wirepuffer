@@ -18,27 +18,36 @@ private:
     QPlainTextEdit *pkt_info_text;
     QPlainTextEdit *pkt_raw_text;
 
-    // data
-    QList<const uchar*> pkts_raw;
+    // pcap_data
+    pcap_t *handle;
+    QList<const pcap_pkthdr*> pkts_hdr; // for save to file
+    QList<const uchar*> pkts_raw; // for save to file
+
     int count; // count of packet
     char *dev; // device name
     QString filter; // capture filter
     bool is_stop; // stop sign
     QHash<QString, QColor> bgs;
     QHash<QString, QColor> fgs;
-    QList<QStandardItem *> handle_packet(pcap_pkthdr *header, const uchar *data);
     QHash<QString, int> dns_stat;
+    void cache_packet(pcap_pkthdr *header, const uchar *data);
+    QList<QStandardItem *> handle_packet(pcap_pkthdr *header, const uchar *data);
+
 
 public:
-    SnifferThread(char* dev, QStandardItemModel *pkt_model,  QStatusBar *status_bar);
+    SnifferThread(QStandardItemModel *pkt_model,  QStatusBar *status_bar);
     ~SnifferThread();
 
+
+    void init(bool is_open, QString filename); // set pcap handle
     void run();  // start packet sniffer
     void stop(); // stop packet sniffer
     void fill(int idx, int len, QTreeWidget *infoTreeWidget, QPlainTextEdit *rawTextEdit); // fill data into UI
     void clear(); // clear current packets
+    void set_dev(QString);
     void set_filter(QString);
-    QString get_filter();
+    void save(QString filepath);
+
     QHash<QString, int> get_dns_stat();
 };
 
