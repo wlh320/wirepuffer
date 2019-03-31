@@ -14,7 +14,7 @@
 #include <QHash>
 
 
-MainWindow::MainWindow(QWidget *parent, QString dev) :
+MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
