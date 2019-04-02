@@ -56,7 +56,7 @@ void parse_tcp(packet *pkt, packet_info *pkt_info)
         info += " [FIN]";
     }
     pkt_info->info = info;
-    pkt->len -= hdr_len;
+    pkt->len -= static_cast<uint>(hdr_len);
     // next layer
     // TODO
     curr += hdr_len;

@@ -12,4 +12,5 @@ QString toMAC(uint8_t *arr);
 QString toIPv4(uint8_t *arr);
 QString toIPv6(uint8_t *arr);
 QString toBinary(uint8_t x);
+
 #endif // TAGS_H

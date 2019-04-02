@@ -41,6 +41,7 @@ QString dns_type_str(int type)
     default: return "Unknown";
     }
 }
+
 QString dns_class_str(int cls)
 {
     switch (cls) {

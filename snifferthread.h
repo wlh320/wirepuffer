@@ -38,7 +38,6 @@ public:
     SnifferThread(QStandardItemModel *pkt_model,  QStatusBar *status_bar);
     ~SnifferThread();
 
-
     void init(bool is_open, QString filename); // set pcap handle
     void run();  // start packet sniffer
     void stop(); // stop packet sniffer

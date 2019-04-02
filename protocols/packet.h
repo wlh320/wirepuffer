@@ -16,11 +16,11 @@ struct icmpv4_header;
 struct icmpv6_header;
 
 struct dns_header;
-// readable packet info
-// parsing result
+
+// store start address
 struct packet
 {
-    int32_t len;
+    uint32_t len;
     // layer 2
     ether_header *ether_hdr = nullptr;
 
@@ -37,7 +37,7 @@ struct packet
 
     // layer 5
     dns_header *dns_hdr = nullptr;
-//    uint8_t *app_payload = nullptr;
+
 };
 
 // readable packet info
@@ -50,11 +50,10 @@ struct packet_info
     QString len = "Unknown";
     QString info = "Unknown";
 
-
-//    QString detail = "";
     // detail info
     QTreeWidgetItem *detail;
-    // current tree node
+
+    // raw hex data
     QString rawhex = "";
 };
 

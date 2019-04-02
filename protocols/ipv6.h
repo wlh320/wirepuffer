@@ -4,8 +4,8 @@
 
 struct ipv6_header
 {
-    // little endien
-    uint8_t   traffic_class_hi : 4; // traffic class
+    // little endian
+    uint8_t   traffic_class_hi : 4;
     uint8_t   version : 4;
     uint8_t   flow_label_hi : 4;
     uint8_t   traffic_class_lo : 4;
@@ -24,6 +24,7 @@ struct ipv6_ext_header
 };
 
 #include "packet.h"
+
 void parse_ipv6(packet *pkt, packet_info *pkt_info, bool is_full = false);
 
 #endif

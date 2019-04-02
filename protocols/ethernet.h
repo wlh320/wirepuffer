@@ -9,6 +9,7 @@
 
 #define ETHER_ADDR_LEN  6
 #define ETHER_HDRLEN    14
+
 struct ether_header
 {
     uint8_t ether_dhost[ETHER_ADDR_LEN];

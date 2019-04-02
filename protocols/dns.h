@@ -3,6 +3,7 @@
 
 #include <cstdint>
 #include <endian.h>
+
 //0  1  2  3  4  5  6  7  8  9  0  1  2  3  4  5
 //+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
 //|                      ID                       |
@@ -70,6 +71,7 @@ struct dns_header
 #define DNS_NAME_OFFSET(ptr)    (((ptr) & 0x3FFF))
 
 #include "packet.h"
+
 void parse_dns(packet *pkt, packet_info *pkt_info);
 
 #endif // DNS_H

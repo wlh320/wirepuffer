@@ -6,10 +6,10 @@
 
 struct ipv4_header
 {
-    // little endien
+    // little endian
     uint8_t  hdrlen : 4;
     uint8_t  version : 4;
-    uint8_t  tos; // differentiated services field
+    uint8_t  tos;
     uint16_t tot_len;
     uint16_t id;
     uint16_t frag_off;
@@ -30,6 +30,7 @@ struct ipv4_header
 //#define IP_OFFSET(ip) ((ntohs((ip)->frag_off)) & IP_OFFMASK) // the fragment offset
 
 #include "packet.h"
+
 void parse_ipv4(packet *pkt, packet_info *pkt_info, bool is_full = false);
 
 #endif

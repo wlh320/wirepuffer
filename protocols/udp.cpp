@@ -27,7 +27,7 @@ void parse_udp(packet *pkt, packet_info *pkt_info)
     sprintf(tmp, "Checksum ----- 0x%04X", checksum);
     tree->addChild(ITEM(tmp));
 
-    pkt->len -= hdr->len;
+    pkt->len -= length;
     // next layer
     // TODO
     if (src_port == DNS_PORT || dst_port == DNS_PORT) {

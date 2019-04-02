@@ -21,7 +21,7 @@ packet_info* parse(uint len, uchar *raw, bool is_full)
 {
     packet *pkt = new packet;
     packet_info *pkt_info = new packet_info;
-    pkt->len = static_cast<int>(len);
+    pkt->len = len;
     pkt->ether_hdr = reinterpret_cast<ether_header*>(raw);
     pkt_info->detail = new QTreeWidgetItem(QStringList("Packet Info"));
     // rawhex

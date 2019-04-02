@@ -4,11 +4,11 @@
 #include <cstdint>
 struct arp_header
 {
-    uint16_t	hardware;		/* Format of hardware address.  */
-    uint16_t	protocol;		/* Format of protocol address.  */
+    uint16_t	hardware;	/* Format of hardware address.  */
+    uint16_t	protocol;	/* Format of protocol address.  */
     uint8_t		hlen;		/* Length of hardware address.  */
     uint8_t		plen;		/* Length of protocol address.  */
-    uint16_t	opcode;		    /* ARP opcode (command).  */
+    uint16_t	opcode;		/* ARP opcode (command).  */
 };
 
 #define ARP_HARDWARE_TYPE_ETHERNET    1

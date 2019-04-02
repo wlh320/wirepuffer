@@ -191,6 +191,7 @@ void SnifferThread::clear()
 {
     count = 0;
     pkts_raw.clear();
+    pkts_hdr.clear();
     pkt_model->clear();
     pkt_model->setHorizontalHeaderItem(0, new QStandardItem("#"));
     pkt_model->setHorizontalHeaderItem(1, new QStandardItem("Time"));
