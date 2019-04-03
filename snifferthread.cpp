@@ -101,7 +101,9 @@ void SnifferThread::run()
 
 void SnifferThread::cache_packet(pcap_pkthdr *header, const uchar *data)
 {
-    pkts_hdr.push_back(header);
+    pcap_pkthdr *tmp_hdr = new pcap_pkthdr;
+    memcpy(tmp_hdr, header, sizeof(pcap_pkthdr));
+    pkts_hdr.push_back(tmp_hdr);
 
     uchar *tmp = new uchar[header->len];
     memcpy(tmp, data, header->len);
@@ -156,7 +158,7 @@ QList<QStandardItem *> SnifferThread::handle_packet(pcap_pkthdr *header, const u
             if (dns_stat.contains(name)){
                 dns_stat[name]++;
             } else {
-                dns_stat[name] = 0;
+                dns_stat[name] = 1;
             }
         }
     }
